@@ -1,0 +1,271 @@
+#!/usr/bin/env node
+
+const { program } = require("commander");
+const { glob } = require("glob");
+const fs = require("fs/promises");
+const path = require("path");
+const crypto = require("crypto");
+
+program
+  .name("codecare")
+  .description("A CLI for codebase health check")
+  .version("1.0.0");
+
+// Function to fetch all files from the project directory
+const getAllFiles = async (pattern) => {
+  try {
+    const allItems = await glob(pattern, {
+      ignore: ["node_modules/**"], // Excluding the node_modules directory
+      absolute: true,
+    });
+
+    // Filter only files from the list of items
+    const files = [];
+    for (const item of allItems) {
+      const stats = await fs.stat(item);
+      if (stats.isFile()) {
+        files.push(item);
+      }
+    }
+    return files;
+  } catch (err) {
+    throw new Error(`Failed to get files: ${err.message}`);
+  }
+};
+
+// Function to identify large files
+const getLargeFiles = async (files, sizeLimit) => {
+  const largeFiles = [];
+  for (const file of files) {
+    const stats = await fs.stat(file);
+    if (stats.size > sizeLimit) {
+      largeFiles.push({ file, size: stats.size });
+    }
+  }
+  return largeFiles;
+};
+
+// Function to generate code statistics for all files
+const getCodeStats = async (files) => {
+  let totalLines = 0;
+  let totalFiles = files.length;
+
+  for (const file of files) {
+    const content = await fs.readFile(file, "utf-8");
+    totalLines += content.split("\n").length;
+  }
+
+  return { totalLines, totalFiles };
+};
+
+// Function to find the duplicate files by name and content
+const findDuplicates = async (files) => {
+  const fileMap = new Map();
+  const duplicates = [];
+  for (const file of files) {
+    const fileName = path.basename(file);
+    if (fileMap.has(fileName)) {
+      const existingFile = fileMap.get(fileName);
+      // Comparing file content to identify duplicates separately
+      const fileContent = await fs.readFile(file);
+      const existingContent = await fs.readFile(existingFile);
+      if (fileContent.equals(existingContent)) {
+        duplicates.push({ file1: file, file2: existingFile });
+      }
+    } else {
+      fileMap.set(fileName, file);
+    }
+  }
+  return duplicates;
+};
+
+// Function to detect empty files
+const findEmptyFiles = async (files) => {
+  const emptyFiles = [];
+  for (const file of files) {
+    const stats = await fs.stat(file);
+    if (stats.size === 0) {
+      emptyFiles.push(file);
+    }
+  }
+  return emptyFiles;
+};
+
+// Function to generate HTML report
+const generateHtmlReport = (
+  stats,
+  largeFiles,
+  duplicates,
+  emptyFiles,
+  outputPath
+) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Codebase Health Check Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1, h2 { color: #333; }
+            .stats { margin: 20px 0; }
+            .large-files, .duplicates, .empty-files { margin-top: 20px; }
+            .red { color: red; }
+            .black { color: black; }
+        </style>
+    </head>
+    <body>
+        <h1>🎯 Codebase Health Check Report 🎯</h1>
+        <div class="stats">
+            <h2>📊 Codebase Statistics</h2>
+            <p>Total files scanned: ${stats.totalFiles}</p>
+            <p>Total lines of code: ${stats.totalLines}</p>
+            <p>Total duplicate files: ${duplicates.length}</p>
+            <p>Total empty files: ${emptyFiles.length}</p>
+        </div>
+        <div class="large-files">
+            <h2>🗂️ Large Files Found</h2>
+            ${
+              largeFiles.length === 0
+                ? "<p>No large files found! Your code is neat and optimized!</p>"
+                : largeFiles
+                    .map(
+                      ({ file, size }) =>
+                        `<p class="red">🔴 ${file} - ${size} bytes</p>`
+                    )
+                    .join("")
+            }
+        </div>
+        <div class="duplicates">
+            <h2>📄 Duplicate Files Found</h2>
+            ${
+              duplicates.length === 0
+                ? "<p>No duplicate files found!</p>"
+                : duplicates
+                    .map(
+                      ({ file1, file2 }) =>
+                        `<p class="red">🔴 ${file1} <span class="black">and</span> ${file2}</p>`
+                    )
+                    .join("")
+            }
+        </div>
+        <div class="empty-files">
+            <h2>📂 Empty Files Found</h2>
+            ${
+              emptyFiles.length === 0
+                ? "<p>No empty files found! Your code is in great shape!</p>"
+                : emptyFiles
+                    .map((file) => `<p class="red">🔴 ${file} is empty.</p>`)
+                    .join("")
+            }
+        </div>
+        <footer style="margin-top: 40px; font-size: 12px;">
+            <p>Generated by Codecare CLI</p>
+        </footer>
+    </body>
+    </html>
+  `;
+
+  // Write the HTML content to the file
+  fs.writeFile(outputPath, htmlContent, "utf-8")
+    .then(() => {
+      console.log(`✅ Report generated at ${outputPath}`);
+    })
+    .catch((err) => {
+      console.error(`❌ Error writing report to file: ${err.message}`);
+    });
+};
+
+// Command's action function
+// This function will be executed when the user runs the `check` command in the CLI
+// This function will check the health of the codebase and generate a report
+// Default 50KB for large files
+// Default output format is HTML
+// Default directory to save the report is `./reports`
+program
+  .command("check")
+  .description("Check the health of the codebase")
+  .option("-p, --pattern <pattern>", "Glob pattern for files", "**/*")
+  .option("-s, --size <size>", "Size limit in bytes for large files", "50000")
+  .option("-o, --output <output>", "Output format (html/json)", "html")
+  .option(
+    "-d, --directory <directory>",
+    "Directory to save the report",
+    "./reports"
+  )
+  .action(async (options) => {
+    const { pattern, size, output, directory } = options;
+
+    try {
+      console.log("\n🎯 **Codebase Health Check** 🎯");
+      console.log(
+        "Scanning your codebase for large files, duplicates, and empty files... 🕵️‍♂️\n"
+      );
+
+      const files = await getAllFiles(pattern);
+      const largeFiles = await getLargeFiles(files, parseInt(size));
+      const { totalLines, totalFiles } = await getCodeStats(files);
+      const duplicates = await findDuplicates(files);
+      const emptyFiles = await findEmptyFiles(files);
+
+      console.log("\n📊 **Codebase Statistics** 📊");
+      console.log(`- Total files scanned: ${totalFiles}`);
+      console.log(`- Total lines of code: ${totalLines}`);
+      console.log(`- Total duplicate files: ${duplicates.length}`);
+      console.log(`- Total empty files: ${emptyFiles.length}`);
+      console.log("\n🗂️ **Large Files Found** 🗂️");
+      if (largeFiles.length === 0) {
+        console.log(
+          "✅ No large files found! Your code is neat and optimized!"
+        );
+      } else {
+        largeFiles.forEach(({ file, size }) => {
+          console.log(`  🔴 ${file} - ${size} bytes`);
+        });
+      }
+
+      console.log("\n📄 **Duplicate Files Found** 📄");
+      if (duplicates.length === 0) {
+        console.log("✅ No duplicate files found!");
+      } else {
+        duplicates.forEach(({ file1, file2 }) => {
+          console.log(`  🔴 Duplicate files: ${file1} and ${file2}`);
+        });
+      }
+
+      console.log("\n📂 **Empty Files Found** 📂");
+      if (emptyFiles.length === 0) {
+        console.log("✅ No empty files found! Your code is in great shape!");
+      } else {
+        emptyFiles.forEach((file) => {
+          console.log(`  🔴 Empty file: ${file}`);
+        });
+      }
+
+      console.log("\n🔧 **Health Check Complete!** 🔧");
+
+      // Ensuring that, directory exists if no then create it
+      const reportDirectory = path.resolve(directory);
+      await fs.mkdir(reportDirectory, { recursive: true });
+
+      // Here it will generate HTML report
+      const reportPath = path.join(reportDirectory, "report.html");
+      if (output === "html") {
+        generateHtmlReport(
+          { totalLines, totalFiles },
+          largeFiles,
+          duplicates,
+          emptyFiles,
+          reportPath
+        );
+      } else if (output === "json") {
+        // Based on options in CLI, Generate JSON report
+        console.log("JSON report option not implemented yet");
+      }
+    } catch (err) {
+      console.error("❌ An error occurred:", err.message);
+    }
+  });
+
+program.parse(process.argv);

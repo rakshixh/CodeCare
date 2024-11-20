@@ -1,0 +1,16 @@
+{
+  "name": "codecare",
+  "version": "1.0.0",
+  "main": "cli.js",
+  "bin": {
+    "codecare": "./cli.js"
+  },
+  "keywords": [],
+  "author": "rakshixh",
+  "license": "ISC",
+  "description": "Check the health of your code with CodePulse",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "glob": "^11.0.0"
+  }
+}
