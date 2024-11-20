@@ -10,6 +10,10 @@
     "start": "node index.js",
     "clean": "npm cache clean --force"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rakshixh/CodeCare.git"
+  },
   "keywords": [
     "codebase",
     "health-check",
@@ -17,6 +21,7 @@
   ],
   "author": "rakshixh",
   "license": "MIT",
+  "homepage": "https://github.com/rakshixh/CodeCare.git",
   "dependencies": {
     "commander": "^12.1.0",
     "glob": "^11.0.0"
