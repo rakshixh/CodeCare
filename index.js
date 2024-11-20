@@ -4,7 +4,7 @@ const { program } = require("commander");
 const { glob } = require("glob");
 const fs = require("fs/promises");
 const path = require("path");
-const crypto = require("crypto");
+// const crypto = require("crypto");
 
 program
   .name("codecare")

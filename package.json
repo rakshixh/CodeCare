@@ -1,14 +1,21 @@
 {
   "name": "codecare",
   "version": "1.0.0",
-  "main": "cli.js",
+  "description": "A CLI for codebase health check",
   "bin": {
-    "codecare": "./cli.js"
+    "codecare": "./index.js"
   },
-  "keywords": [],
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "codebase",
+    "health-check",
+    "CLI"
+  ],
   "author": "rakshixh",
-  "license": "ISC",
-  "description": "Check the health of your code with CodePulse",
+  "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
     "glob": "^11.0.0"
