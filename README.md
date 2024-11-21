@@ -141,3 +141,7 @@ codecare --version
 ## Contributing
 
 We welcome contributions to improve CodeCare! Feel free to submit [issues](https://github.com/rakshixh/CodeCare/issues) or [pull requests](https://github.com/rakshixh/CodeCare/pulls).
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/rakshixh/CodeCare/blob/main/LICENSE) file for details.
