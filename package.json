@@ -17,7 +17,9 @@
   "keywords": [
     "codebase",
     "health-check",
-    "CLI"
+    "CLI",
+    "duplicate-code",
+    "empty-files"
   ],
   "author": "rakshixh",
   "license": "MIT",
