@@ -35,8 +35,7 @@ npm install codecare
 
 After installing, you can use CodeCare directly from the command line.
 
-> [!NOTE]
-> Run `codecare` commands from the root folder of your project. This ensures that the tool can accurately scan all files within the project directory. Running the CLI outside the root folder may result in incomplete or incorrect analysis.
+> **IMPORTANT :** Run `codecare` commands from the root folder of your project. This ensures that the tool can accurately scan all files within the project directory. Running the CLI outside the root folder may result in incomplete or incorrect analysis.
 
 ### Commands
 
