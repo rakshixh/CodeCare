@@ -1,6 +1,6 @@
 {
   "name": "codecare",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A CLI for codebase health check",
   "bin": {
     "codecare": "./index.js"
@@ -19,13 +19,17 @@
     "health-check",
     "CLI",
     "duplicate-code",
-    "empty-files"
+    "empty-files",
+    "html-report",
+    "json-report"
   ],
   "author": "rakshixh",
   "license": "MIT",
   "homepage": "https://github.com/rakshixh/CodeCare.git",
   "dependencies": {
+    "cli-color": "^2.0.4",
     "commander": "^12.1.0",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "path": "^0.12.7"
   }
 }
