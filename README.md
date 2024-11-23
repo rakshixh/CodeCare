@@ -59,6 +59,10 @@ codecare check [options]
   codecare check --pattern "src/**/*.js"
   ```
 
+  ```bash
+  codecare check --p "src/**/*.js"
+  ```
+
 - **`-s, --size <size>`**  
   Size limit (in bytes) to classify files as "large".  
   Default: `50000` (50KB).
@@ -67,6 +71,10 @@ codecare check [options]
 
   ```bash
   codecare check --size 100000
+  ```
+
+  ```bash
+  codecare check --s 100000
   ```
 
 - **`-o, --output <output>`**  
@@ -79,6 +87,10 @@ codecare check [options]
   codecare check --output json
   ```
 
+  ```bash
+  codecare check --o json
+  ```
+
 - **`-d, --directory <directory>`**  
   Directory where the generated report will be saved.  
   Default: `./reports`.
@@ -87,6 +99,10 @@ codecare check [options]
 
   ```bash
   codecare check --directory ./custom-reports
+  ```
+
+  ```bash
+  codecare check --d ./custom-reports
   ```
 
 ---
@@ -107,6 +123,10 @@ Displays the current version of the CLI.
 
 ```bash
 codecare --version
+```
+
+```bash
+codecare --V
 ```
 
 ---
