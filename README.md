@@ -1,6 +1,10 @@
 # CodeCare CLI
 
-A CLI tool for comprehensive codebase health checks, generating detailed HTML or JSON reports.
+A CLI tool for comprehensive codebase health checks, generating detailed HTML or JSON reports.<br><br>
+![NPM Version](https://img.shields.io/npm/v/codecare?style=flat-square&logo=npm&label=npm%20version&color=dark-green)
+ ![NPM Downloads](https://img.shields.io/npm/d18m/codecare?style=flat-square&logo=npm) ![GitHub repo size](https://img.shields.io/github/repo-size/rakshixh/CodeCare?style=flat-square&logo=github&color=dark-green) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/codecare?style=flat-square&logo=npm&label=npm%20package%20size&color=dark-green)
+
+
 
 ## Overview
 
