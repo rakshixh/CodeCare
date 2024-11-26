@@ -2,9 +2,7 @@
 
 A CLI tool for comprehensive codebase health checks, generating detailed HTML or JSON reports.<br><br>
 ![NPM Version](https://img.shields.io/npm/v/codecare?style=flat-square&logo=npm&label=npm%20version&color=dark-green)
- ![NPM Downloads](https://img.shields.io/npm/d18m/codecare?style=flat-square&logo=npm) ![GitHub repo size](https://img.shields.io/github/repo-size/rakshixh/CodeCare?style=flat-square&logo=github&color=dark-green) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/codecare?style=flat-square&logo=npm&label=npm%20package%20size&color=dark-green)
-
-
+![NPM Downloads](https://img.shields.io/npm/d18m/codecare?style=flat-square&logo=npm) ![GitHub repo size](https://img.shields.io/github/repo-size/rakshixh/CodeCare?style=flat-square&logo=github&color=dark-green) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/codecare?style=flat-square&logo=npm&label=npm%20package%20size&color=dark-green)
 
 ## Overview
 
@@ -95,6 +93,20 @@ codecare check [options]
   codecare check --o json
   ```
 
+- **`-l, --max-lines <maxLines>`**  
+  Maximum lines of code allowed in a single file.  
+  Default: `500` lines
+
+  Example:
+
+  ```bash
+  codecare check --max-lines json
+  ```
+
+  ```bash
+  codecare check --l json
+  ```
+
 - **`-d, --directory <directory>`**  
   Directory where the generated report will be saved.  
   Default: `./reports`.
@@ -159,6 +171,12 @@ codecare --V
 
    ```bash
    codecare check --directory ./output/reports
+   ```
+
+5. **Set the number of lines of code to 600 and output a HTML report**
+
+   ```bash
+   codecare check --max-lines 600 --output html
    ```
 
 ## Contributing
