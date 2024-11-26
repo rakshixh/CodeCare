@@ -120,6 +120,7 @@ const generateJsonReport = (
       totalLines: stats.totalLines,
       totalDuplicateFiles: duplicates.length,
       totalEmptyFiles: emptyFiles.length,
+      totalFilesExceedingLineLimit: exceedingMaxLinesFiles.length,
     },
     largeFiles: largeFiles.map(({ file, size }) => ({ file, size })),
     duplicates: duplicates.map(({ file1, file2 }) => ({ file1, file2 })),
