@@ -158,8 +158,6 @@ function checkCommand() {
             duplicates,
             emptyFiles,
             filesExceedingLines,
-            size,
-            maxLines,
             jsonReportPath
           );
         }
