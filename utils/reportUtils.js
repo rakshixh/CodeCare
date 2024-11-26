@@ -6,6 +6,9 @@ const generateHtmlReport = (
   largeFiles,
   duplicates,
   emptyFiles,
+  exceedingMaxLinesFiles,
+  size,
+  maxlines,
   outputPath
 ) => {
   const htmlContent = `
@@ -19,9 +22,11 @@ const generateHtmlReport = (
             body { font-family: Arial, sans-serif; padding: 20px; }
             h1, h2 { color: #333; }
             .stats { margin: 20px 0; }
-            .large-files, .duplicates, .empty-files { margin-top: 20px; }
+            .large-files, .duplicates, .empty-files, .exceeding-lines { margin-top: 20px; }
             .red { color: red; }
             .black { color: black; }
+            .watermark { margin-top: 40px; }
+            .watermarkText { font-size: 10px; color: #536493; }
         </style>
     </head>
     <body>
@@ -32,9 +37,12 @@ const generateHtmlReport = (
             <p>Total lines of code: ${stats.totalLines}</p>
             <p>Total duplicate files: ${duplicates.length}</p>
             <p>Total empty files: ${emptyFiles.length}</p>
+            <p>Total files exceeding line limit: ${
+              exceedingMaxLinesFiles.length
+            }</p>
         </div>
         <div class="large-files">
-            <h2>🗂️ Large Files Found</h2>
+            <h2>🗂️ Large Files Found (More than ${size} bytes)</h2>
             ${
               largeFiles.length === 0
                 ? "<p>No large files found! Your code is neat and optimized!</p>"
@@ -54,7 +62,7 @@ const generateHtmlReport = (
                 : duplicates
                     .map(
                       ({ file1, file2 }) =>
-                        `<p class="red">🔴 Duplicate files: ${file1} and ${file2}</p>`
+                        `<p class="red">🔴 Duplicate files: ${file1} <span class="black">and</span> ${file2}</p>`
                     )
                     .join("")
             }
@@ -68,6 +76,23 @@ const generateHtmlReport = (
                     .map((file) => `<p class="red">🔴 Empty file: ${file}</p>`)
                     .join("")
             }
+        </div>
+        <div class="exceeding-lines">
+            <h2>📜 Files Exceeding ${maxlines} Line Limit</h2>
+            ${
+              exceedingMaxLinesFiles.length === 0
+                ? `<p>No files exceed the ${maxLines} line limit! Your code is concise!</p>`
+                : exceedingMaxLinesFiles
+                    .map(
+                      ({ file, lines }) =>
+                        `<p class="red">🔴 ${file} - ${lines} lines</p>`
+                    )
+                    .join("")
+            }
+        </div>
+        <div class="watermark">
+            <p class="watermarkText">Generated on: ${new Date().toLocaleString()}</p>
+            <p class="watermarkText"><a class="watermarkText" href="https://www.npmjs.com/package/codecare" target="_blank">Powered by: codecare</a></p>
         </div>
     </body>
     </html>
@@ -86,6 +111,7 @@ const generateJsonReport = (
   largeFiles,
   duplicates,
   emptyFiles,
+  exceedingMaxLinesFiles,
   outputPath
 ) => {
   const reportData = {
@@ -98,6 +124,10 @@ const generateJsonReport = (
     largeFiles: largeFiles.map(({ file, size }) => ({ file, size })),
     duplicates: duplicates.map(({ file1, file2 }) => ({ file1, file2 })),
     emptyFiles: emptyFiles.map((file) => file),
+    exceedingMaxLinesFiles: exceedingMaxLinesFiles.map(({ file, lines }) => ({
+      file,
+      lines,
+    })),
   };
 
   fs.writeFile(outputPath, JSON.stringify(reportData, null, 2))
