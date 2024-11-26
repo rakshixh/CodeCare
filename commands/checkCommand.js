@@ -8,6 +8,7 @@ const {
   getCodeStats,
   findDuplicates,
   findEmptyFiles,
+  findFilesExceedingLineLimit,
 } = require("../utils/fileUtils");
 const {
   generateHtmlReport,
@@ -39,8 +40,13 @@ function checkCommand() {
       "Directory to save the generated report",
       config.defaultDirectory
     )
+    .option(
+      "-l, --max-lines <maxLines>",
+      "Maximum lines of code allowed in a single file",
+      config.defaultMaxLines
+    )
     .action(async (options) => {
-      const { pattern, size, output, directory } = options;
+      const { pattern, size, output, directory, maxLines } = options;
 
       try {
         console.log(clc.cyanBright.bold("\n🎯 Codebase Health Check 🎯"));
@@ -55,6 +61,10 @@ function checkCommand() {
         const { totalLines, totalFiles } = await getCodeStats(files);
         const duplicates = await findDuplicates(files);
         const emptyFiles = await findEmptyFiles(files);
+        const filesExceedingLines = await findFilesExceedingLineLimit(
+          files,
+          parseInt(maxLines)
+        );
 
         console.log(clc.cyanBright.bold("\n📊 Codebase Statistics 📊"));
         console.log(clc.magenta(`- Total files scanned: ${totalFiles}`));
@@ -63,8 +73,15 @@ function checkCommand() {
           clc.magenta(`- Total duplicate files: ${duplicates.length}`)
         );
         console.log(clc.magenta(`- Total empty files: ${emptyFiles.length}`));
+        console.log(
+          clc.magenta(
+            `- Total files exceeding line limit: ${filesExceedingLines.length}`
+          )
+        );
 
-        console.log(clc.yellow.bold("\nLarge Files Found 🗂️"));
+        console.log(
+          clc.yellow.bold(`\nLarge Files Found (More than ${size} bytes) 🗂️`)
+        );
         if (largeFiles.length === 0) {
           console.log(
             clc.greenBright(
@@ -101,18 +118,36 @@ function checkCommand() {
           });
         }
 
+        console.log(
+          clc.yellow.bold(`\nFiles Exceeding ${maxLines} Line Limit 📜`)
+        );
+        if (filesExceedingLines.length === 0) {
+          console.log(
+            clc.greenBright(
+              `✅ No files exceed the ${maxLines}-line limit! Your code is concise!`
+            )
+          );
+        } else {
+          filesExceedingLines.forEach(({ file, lines }) => {
+            console.log(clc.redBright(`  🔴 ${file} - ${lines} lines`));
+          });
+        }
+
         console.log(clc.greenBright.bold("\n🔧 Health Check Complete! 🔧"));
 
         const reportDirectory = path.resolve(directory);
         await fs.mkdir(reportDirectory, { recursive: true });
 
-        const reportPath = path.join(reportDirectory, "report.html");
         if (output === "html") {
+          const reportPath = path.join(reportDirectory, "report.html");
           generateHtmlReport(
             { totalLines, totalFiles },
             largeFiles,
             duplicates,
             emptyFiles,
+            filesExceedingLines,
+            size,
+            maxLines,
             reportPath
           );
         } else if (output === "json") {
@@ -122,6 +157,9 @@ function checkCommand() {
             largeFiles,
             duplicates,
             emptyFiles,
+            filesExceedingLines,
+            size,
+            maxLines,
             jsonReportPath
           );
         }
