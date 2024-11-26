@@ -80,10 +80,30 @@ const findEmptyFiles = async (files) => {
   return emptyFiles;
 };
 
+const findFilesExceedingLineLimit = async (files, maxLines) => {
+  const result = [];
+
+  for (const file of files) {
+    try {
+      const content = await fs.readFile(file, "utf-8");
+      const lines = content.split("\n").length;
+
+      if (lines > maxLines) {
+        result.push({ file, lines });
+      }
+    } catch (err) {
+      console.error(`Error reading file ${file}: ${err.message}`);
+    }
+  }
+
+  return result;
+};
+
 module.exports = {
   getAllFiles,
   getLargeFiles,
   getCodeStats,
   findDuplicates,
   findEmptyFiles,
+  findFilesExceedingLineLimit,
 };
