@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+@page {
+    size: A4;
+    margin: 3rem;
+}
+
+:root {
+    --bg-color: #ffffff;
+    --primary-color: #264653;
+    --header-color1: #e9c46a;
+    --header-color2: #f4a261;
+    --table-header-color: #2a9d8f;
+    --table-border-color: #ddd;
+    --danger-color: #e74c3c;
+}
+
+body {
+    font-family: "Nunito", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    background-color: var(--bg-color);
+    margin: 0px;
+    padding: 0px;
+}
+
+h1,
+h2,
+p {
+    color: var(--primary-color);
+    margin: 0rem;
+}
+
+a {
+    text-decoration: none;
+    color: var(--header-color1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 0.8rem;
+    text-align: left;
+    border: 1px solid var(--table-border-color);
+    color: var(--primary-color);
+}
+
+th {
+    background: var(--table-header-color);
+    color: var(--bg-color);
+    text-transform: uppercase;
+}
+
+tr {
+    font-weight: 700;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    background-color: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.ht1 {
+    margin: 1rem 0rem 0rem 3rem;
+    color: var(--header-color1);
+}
+
+.ht2 {
+    margin: 0rem 0rem 1rem 3rem;
+    color: var(--header-color2);
+}
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.card {
+    padding: 0.8rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.red {
+    color: var(--danger-color);
+}
+
+.primary {
+    color: var(--primary-color);
+}
+
+.green {
+    color: var(--table-header-color);
+}
+
+.watermark {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+}
+
+.watermark a {
+    text-decoration: none;
+    color: var(--primary-color);
+}

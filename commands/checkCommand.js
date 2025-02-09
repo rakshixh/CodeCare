@@ -11,7 +11,7 @@ const {
   findFilesExceedingLineLimit,
 } = require("../utils/fileUtils");
 const {
-  generateHtmlReport,
+  generatePdfReport,
   generateJsonReport,
 } = require("../utils/reportUtils");
 const config = require("../config");
@@ -32,7 +32,7 @@ function checkCommand() {
     )
     .option(
       "-o, --output <output>",
-      "Output format (html/json)",
+      "Output format (pdf/json)",
       config.defaultOutput
     )
     .option(
@@ -78,21 +78,7 @@ function checkCommand() {
             `- Total files exceeding line limit: ${filesExceedingLines.length}`
           )
         );
-
-        console.log(
-          clc.yellow.bold(`\nLarge Files Found (More than ${size} bytes) 🗂️`)
-        );
-        if (largeFiles.length === 0) {
-          console.log(
-            clc.greenBright(
-              "✅ No large files found! Your code is neat and optimized!"
-            )
-          );
-        } else {
-          largeFiles.forEach(({ file, size }) => {
-            console.log(clc.redBright(`  🔴 ${file} - ${size} bytes`));
-          });
-        }
+        console.log(clc.magenta(`- Total large files: ${largeFiles.length}`));
 
         console.log(clc.yellow.bold("\nDuplicate Files Found 📄"));
         if (duplicates.length === 0) {
@@ -133,14 +119,43 @@ function checkCommand() {
           });
         }
 
+        console.log(
+          clc.yellow.bold(`\nLarge Files Found (More than ${size} bytes) 🗂️`)
+        );
+        if (largeFiles.length === 0) {
+          console.log(
+            clc.greenBright(
+              "✅ No large files found! Your code is neat and optimized!"
+            )
+          );
+        } else {
+          largeFiles.forEach(({ file, size }) => {
+            console.log(clc.redBright(`  🔴 ${file} - ${size} bytes`));
+          });
+        }
+
         console.log(clc.greenBright.bold("\n🔧 Health Check Complete! 🔧"));
 
         const reportDirectory = path.resolve(directory);
         await fs.mkdir(reportDirectory, { recursive: true });
 
-        if (output === "html") {
-          const reportPath = path.join(reportDirectory, "report.html");
-          generateHtmlReport(
+        if (output === "pdf") {
+          const now = new Date();
+          const formattedDate = now.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
+          // Format time as HH-MM-SS AM/PM
+          const formattedTime = now
+            .toLocaleString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            })
+            .replace(/:/g, "-")
+            .replace(/\s/g, ""); // Remove colons & spaces
+
+          const reportFileName = `report-${formattedDate}-${formattedTime}.pdf`;
+          const reportPath = path.join(reportDirectory, reportFileName);
+          generatePdfReport(
             { totalLines, totalFiles },
             largeFiles,
             duplicates,

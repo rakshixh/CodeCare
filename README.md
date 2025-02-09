@@ -1,17 +1,17 @@
 # CodeCare CLI
 
-A CLI tool for comprehensive codebase health checks, generating detailed HTML or JSON reports.<br><br>
+A CLI tool for comprehensive codebase health checks, generating detailed PDF or JSON reports.<br><br>
 ![NPM Version](https://img.shields.io/npm/v/codecare?style=flat-square&logo=npm&label=npm%20version&color=dark-green)
 ![NPM Downloads](https://img.shields.io/npm/d18m/codecare?style=flat-square&logo=npm) ![GitHub repo size](https://img.shields.io/github/repo-size/rakshixh/CodeCare?style=flat-square&logo=github&color=dark-green) ![NPM Unpacked Size](https://img.shields.io/npm/unpacked-size/codecare?style=flat-square&logo=npm&label=npm%20package%20size&color=dark-green)
 
 ## Overview
 
-CodeCare is a lightweight and efficient command-line tool designed to analyze your codebase's health. It scans for potential issues like large files, duplicates, and empty files, providing a clear and actionable report in HTML or JSON format.
+CodeCare is a lightweight and efficient command-line tool designed to analyze your codebase's health. It scans for potential issues like large files, duplicates, and empty files, providing a clear and actionable report in PDF or JSON format.
 
 ## Features
 
 - **Codebase Analysis**: Detects large files, duplicates, and empty files.
-- **Detailed Reports**: Generates visually rich HTML reports or structured JSON files.
+- **Detailed Reports**: Generates visually rich PDF reports or structured JSON files.
 - **Customizable Options**: Adjust settings for tailored results.
 - **Simple Commands**: Easy-to-use CLI commands for developers of all levels.
 
@@ -81,7 +81,7 @@ codecare check [options]
 
 - **`-o, --output <output>`**  
   Format of the generated report.  
-  Options: `html` (default), `json`.
+  Options: `pdf` (default), `json`.
 
   Example:
 
@@ -149,7 +149,7 @@ codecare --V
 
 ### **Examples**
 
-1. **Run a basic health check and generate an HTML report in the default location:**
+1. **Run a basic health check and generate an PDF report in the default location:**
 
    ```bash
    codecare check
@@ -167,16 +167,16 @@ codecare --V
    codecare check --size 100000 --output json
    ```
 
-4. **Generate an HTML report in a custom directory:**
+4. **Generate an PDF report in a custom directory:**
 
    ```bash
    codecare check --directory ./output/reports
    ```
 
-5. **Set the number of lines of code to 600 and output a HTML report**
+5. **Set the number of lines of code to 600 and output a PDF report**
 
    ```bash
-   codecare check --max-lines 600 --output html
+   codecare check --max-lines 600 --output pdf
    ```
 
 ## Contributing

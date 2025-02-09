@@ -1,7 +1,9 @@
 const fs = require("fs/promises");
 const clc = require("cli-color");
+const path = require("path");
+const puppeteer = require("puppeteer");
 
-const generateHtmlReport = (
+const generatePdfReport = async (
   stats,
   largeFiles,
   duplicates,
@@ -11,98 +13,100 @@ const generateHtmlReport = (
   maxlines,
   outputPath
 ) => {
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Codebase Health Check Report</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h1, h2 { color: #333; }
-            .stats { margin: 20px 0; }
-            .large-files, .duplicates, .empty-files, .exceeding-lines { margin-top: 20px; }
-            .red { color: red; }
-            .black { color: black; }
-            .watermark { margin-top: 40px; }
-            .watermarkText { font-size: 10px; color: #536493; }
-        </style>
-    </head>
-    <body>
-        <h1>🎯 Codebase Health Check Report 🎯</h1>
-        <div class="stats">
-            <h2>📊 Codebase Statistics</h2>
-            <p>Total files scanned: ${stats.totalFiles}</p>
-            <p>Total lines of code: ${stats.totalLines}</p>
-            <p>Total duplicate files: ${duplicates.length}</p>
-            <p>Total empty files: ${emptyFiles.length}</p>
-            <p>Total files exceeding line limit: ${
-              exceedingMaxLinesFiles.length
-            }</p>
-        </div>
-        <div class="large-files">
-            <h2>🗂️ Large Files Found (More than ${size} bytes)</h2>
-            ${
-              largeFiles.length === 0
-                ? "<p>No large files found! Your code is neat and optimized!</p>"
-                : largeFiles
-                    .map(
-                      ({ file, size }) =>
-                        `<p class="red">🔴 ${file} - ${size} bytes</p>`
-                    )
-                    .join("")
-            }
-        </div>
-        <div class="duplicates">
-            <h2>📄 Duplicate Files Found</h2>
-            ${
-              duplicates.length === 0
-                ? "<p>No duplicate files found!</p>"
-                : duplicates
-                    .map(
-                      ({ file1, file2 }) =>
-                        `<p class="red">🔴 Duplicate files: ${file1} <span class="black">and</span> ${file2}</p>`
-                    )
-                    .join("")
-            }
-        </div>
-        <div class="empty-files">
-            <h2>📂 Empty Files Found</h2>
-            ${
-              emptyFiles.length === 0
-                ? "<p>No empty files found! Your code is in great shape!</p>"
-                : emptyFiles
-                    .map((file) => `<p class="red">🔴 Empty file: ${file}</p>`)
-                    .join("")
-            }
-        </div>
-        <div class="exceeding-lines">
-            <h2>📜 Files Exceeding ${maxlines} Line Limit</h2>
-            ${
-              exceedingMaxLinesFiles.length === 0
-                ? `<p>No files exceed the ${maxLines} line limit! Your code is concise!</p>`
-                : exceedingMaxLinesFiles
-                    .map(
-                      ({ file, lines }) =>
-                        `<p class="red">🔴 ${file} - ${lines} lines</p>`
-                    )
-                    .join("")
-            }
-        </div>
-        <div class="watermark">
-            <p class="watermarkText">Generated on: ${new Date().toLocaleString()}</p>
-            <p class="watermarkText"><a class="watermarkText" href="https://www.npmjs.com/package/codecare" target="_blank">Powered by: codecare</a></p>
-        </div>
-    </body>
-    </html>
-  `;
+  try {
+    const templatePath = path.join(__dirname, "template.html");
+    const cssPath = path.join(__dirname, "styles.css");
+    const tempHtmlPath = outputPath.replace(".pdf", ".html");
 
-  fs.writeFile(outputPath, htmlContent)
-    .then(() =>
-      console.log(clc.yellowBright(`📝 Report saved to: ${outputPath}`))
-    )
-    .catch((err) => console.error(`❌ Failed to save report: ${err.message}`));
+    let htmlContent = await fs.readFile(templatePath, "utf8");
+    let cssContent = await fs.readFile(cssPath, "utf8");
+
+    // Inject CSS into HTML (ensures styles are applied)
+    htmlContent = htmlContent.replace(
+      "</head>",
+      `<style>${cssContent}</style></head>`
+    );
+
+    // Replace placeholders with actual data
+    htmlContent = htmlContent
+      .replace("{{totalFiles}}", stats.totalFiles)
+      .replace("{{totalLines}}", stats.totalLines)
+      .replace("{{totalDuplicateFiles}}", duplicates.length)
+      .replace("{{totalEmptyFiles}}", emptyFiles.length)
+      .replace(
+        "{{totalFilesExceedingLineLimit}}",
+        exceedingMaxLinesFiles.length
+      )
+      .replace("{{totalLargeFiles}}", largeFiles.length)
+      .replace("{{size}}", size)
+      .replace("{{maxLines}}", maxlines)
+      .replace("{{generatedDate}}", new Date().toLocaleString())
+      .replace(
+        "{{largeFiles}}",
+        largeFiles.length === 0
+          ? `<p class="green">No large files found! Your code is neat and optimized!</p>`
+          : largeFiles
+              .map(
+                ({ file, size }) =>
+                  `<p class="red">🔴 ${file} - ${size} bytes</p>`
+              )
+              .join("")
+      )
+      .replace(
+        "{{duplicates}}",
+        duplicates.length === 0
+          ? `<p class="green">No duplicate files found!</p>`
+          : duplicates
+              .map(
+                ({ file1, file2 }) =>
+                  `<p class="red">🔴 ${file1} <span class="primary">and</span> ${file2}</p>`
+              )
+              .join("")
+      )
+      .replace(
+        "{{emptyFiles}}",
+        emptyFiles.length === 0
+          ? `<p class="green">No empty files found! Your code is in great shape!</p>`
+          : emptyFiles.map((file) => `<p class="red">🔴 ${file}</p>`).join("")
+      )
+      .replace(
+        "{{exceedingFiles}}",
+        exceedingMaxLinesFiles.length === 0
+          ? `<p class="green">No files exceed the ${maxlines} line limit! Your code is concise!</p>`
+          : exceedingMaxLinesFiles
+              .map(
+                ({ file, lines }) =>
+                  `<p class="red">🔴 ${file} - ${lines} lines</p>`
+              )
+              .join("")
+      );
+
+    // Save the modified HTML to a temporary file
+    await fs.writeFile(tempHtmlPath, htmlContent);
+
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+
+    // Load the temporary HTML file
+    await page.goto(`file://${tempHtmlPath}`, { waitUntil: "networkidle0" });
+
+    // Generate PDF
+    await page.pdf({
+      path: outputPath,
+      format: "A4",
+      printBackground: true,
+    });
+
+    await browser.close();
+
+    // Delete the temporary HTML file
+    await fs.unlink(tempHtmlPath);
+
+    console.log(`📄 PDF report saved to: ${outputPath}`);
+  } catch (err) {
+    console.error(`❌ Failed to save report: ${err.message}`);
+  }
 };
 
 // Function to generate JSON report
@@ -133,9 +137,9 @@ const generateJsonReport = (
 
   fs.writeFile(outputPath, JSON.stringify(reportData, null, 2))
     .then(() =>
-      console.log(clc.yellowBright(`📝 Report saved to: ${outputPath}`))
+      console.log(clc.yellowBright(`📝 JSON Report saved to: ${outputPath}`))
     )
     .catch((err) => console.error(`❌ Failed to save report: ${err.message}`));
 };
 
-module.exports = { generateHtmlReport, generateJsonReport };
+module.exports = { generatePdfReport, generateJsonReport };
