@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codebase Health Check Report</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="mainContainer">
+        <div class="header">
+          <h1 class="ht1">
+            <a href="https://www.npmjs.com/package/codecare" target="_blank">
+              CodeCare CLI
+            </a>
+          </h1>
+          <p class="ht2">Generated on: {{generatedDate}}</p>
+        </div>
+        <h1>🎯 Codebase Health Check Report 🎯</h1>
+        <div class="cardStats">
+          <table>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+            </tr>
+            <tr>
+              <td>Total Files Scanned</td>
+              <td>{{totalFiles}}</td>
+            </tr>
+            <tr>
+              <td>Total Lines of Code</td>
+              <td>{{totalLines}}</td>
+            </tr>
+            <tr>
+              <td>Duplicate Files</td>
+              <td>{{totalDuplicateFiles}}</td>
+            </tr>
+            <tr>
+              <td>Empty Files</td>
+              <td>{{totalEmptyFiles}}</td>
+            </tr>
+            <tr>
+              <td>Files Exceeding Line Limit</td>
+              <td>{{totalFilesExceedingLineLimit}}</td>
+            </tr>
+            <tr>
+              <td>Large Files</td>
+              <td>{{totalLargeFiles}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Duplicate Files 📄</h2>
+          {{duplicates}}
+        </div>
+
+        <div class="card">
+          <h2>Empty Files 📂</h2>
+          {{emptyFiles}}
+        </div>
+
+        <div class="card">
+          <h2>Files Exceeding {{maxLines}} Line Limit 📜</h2>
+          {{exceedingFiles}}
+        </div>
+
+        <div class="card">
+          <h2>Large Files (More than {{size}} bytes) 🗂️</h2>
+          {{largeFiles}}
+        </div>
+
+        <div class="watermark">
+          <p>
+            <a href="https://www.npmjs.com/package/codecare" target="_blank">
+              Powered by: codecare
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
