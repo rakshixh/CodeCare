@@ -80,6 +80,7 @@ const findEmptyFiles = async (files) => {
   return emptyFiles;
 };
 
+// Function to find files exceeding a certain line limit
 const findFilesExceedingLineLimit = async (files, maxLines) => {
   const result = [];
 
@@ -99,6 +100,14 @@ const findFilesExceedingLineLimit = async (files, maxLines) => {
   return result;
 };
 
+// Function to get the relative path of a file
+const getRelativePath = (filePath) => {
+  const projectRoot = path.resolve();
+  const projectName = path.basename(projectRoot);
+  const relativePath = path.relative(projectRoot, filePath);
+  return path.join(projectName, relativePath);
+};
+
 module.exports = {
   getAllFiles,
   getLargeFiles,
@@ -106,4 +115,5 @@ module.exports = {
   findDuplicates,
   findEmptyFiles,
   findFilesExceedingLineLimit,
+  getRelativePath,
 };

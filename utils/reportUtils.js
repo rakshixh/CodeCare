@@ -2,6 +2,7 @@ const fs = require("fs/promises");
 const clc = require("cli-color");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const { getRelativePath } = require("./fileUtils");
 
 const generatePdfReport = async (
   stats,
@@ -47,8 +48,10 @@ const generatePdfReport = async (
           ? `<p class="green">No large files found! Your code is neat and optimized!</p>`
           : largeFiles
               .map(
-                ({ file, size }) =>
-                  `<p class="red">🔴 ${file} - ${size} bytes</p>`
+                ({ file, size }, index) =>
+                  `<p class="red">${index + 1}. ${getRelativePath(
+                    file
+                  )} - ${size} bytes</p>`
               )
               .join("")
       )
@@ -58,8 +61,12 @@ const generatePdfReport = async (
           ? `<p class="green">No duplicate files found!</p>`
           : duplicates
               .map(
-                ({ file1, file2 }) =>
-                  `<p class="red">🔴 ${file1} <span class="primary">and</span> ${file2}</p>`
+                ({ file1, file2 }, index) =>
+                  `<p class="red">${index + 1}. ${getRelativePath(
+                    file1
+                  )} <span class="primary">and</span> ${getRelativePath(
+                    file2
+                  )}</p>`
               )
               .join("")
       )
@@ -67,7 +74,12 @@ const generatePdfReport = async (
         "{{emptyFiles}}",
         emptyFiles.length === 0
           ? `<p class="green">No empty files found! Your code is in great shape!</p>`
-          : emptyFiles.map((file) => `<p class="red">🔴 ${file}</p>`).join("")
+          : emptyFiles
+              .map(
+                (file, index) =>
+                  `<p class="red">${index + 1}. ${getRelativePath(file)}</p>`
+              )
+              .join("")
       )
       .replace(
         "{{exceedingFiles}}",
@@ -75,8 +87,10 @@ const generatePdfReport = async (
           ? `<p class="green">No files exceed the ${maxlines} line limit! Your code is concise!</p>`
           : exceedingMaxLinesFiles
               .map(
-                ({ file, lines }) =>
-                  `<p class="red">🔴 ${file} - ${lines} lines</p>`
+                ({ file, lines }, index) =>
+                  `<p class="red">${index + 1}. ${getRelativePath(
+                    file
+                  )} - ${lines} lines</p>`
               )
               .join("")
       );
@@ -126,11 +140,17 @@ const generateJsonReport = (
       totalEmptyFiles: emptyFiles.length,
       totalFilesExceedingLineLimit: exceedingMaxLinesFiles.length,
     },
-    largeFiles: largeFiles.map(({ file, size }) => ({ file, size })),
-    duplicates: duplicates.map(({ file1, file2 }) => ({ file1, file2 })),
-    emptyFiles: emptyFiles.map((file) => file),
+    largeFiles: largeFiles.map(({ file, size }) => ({
+      file: getRelativePath(file),
+      size,
+    })),
+    duplicates: duplicates.map(({ file1, file2 }) => ({
+      file1: getRelativePath(file1),
+      file2: getRelativePath(file2),
+    })),
+    emptyFiles: emptyFiles.map((file) => ({ file: getRelativePath(file) })),
     exceedingMaxLinesFiles: exceedingMaxLinesFiles.map(({ file, lines }) => ({
-      file,
+      file: getRelativePath(file),
       lines,
     })),
   };
