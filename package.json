@@ -1,6 +1,6 @@
 {
   "name": "codecare",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A CLI for codebase health check",
   "bin": {
     "codecare": "./index.js"
@@ -20,8 +20,14 @@
     "CLI",
     "duplicate-code",
     "empty-files",
-    "html-report",
-    "json-report"
+    "pdf-report",
+    "pdf-report-generator",
+    "json-report",
+    "code-quality",
+    "code-metrics",
+    "specific-files-scanning",
+    "set-size-limit-for-files",
+    "set-maximum-lines-of-code-limit"
   ],
   "author": "rakshixh",
   "license": "MIT",
